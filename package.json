@@ -1,0 +1,14 @@
+{
+  "name": "clonary",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/clonary & npm run dev --workspace=apps/admin",
+    "dev:clonary": "npm run dev --workspace=apps/clonary",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "build": "npm run build --workspace=packages/database && npm run build --workspace=apps/clonary && npm run build --workspace=apps/admin"
+  }
+}

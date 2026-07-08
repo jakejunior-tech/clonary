@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AccessCode {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  type      String    // "USER" or "ADMIN"
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  users     User[]
+}
+
+model User {
+  id           String       @id @default(cuid())
+  accessCodeId String
+  accessCode   AccessCode   @relation(fields: [accessCodeId], references: [id])
+  name         String?
+  phone        String?
+  createdAt    DateTime     @default(now())
+  voices       ClonedVoice[]
+  generations  Generation[]
+}
+
+model ClonedVoice {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  name            String
+  elevenlabsVoiceId String
+  sampleUrl       String?
+  createdAt       DateTime     @default(now())
+  generations     Generation[]
+}
+
+model Generation {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  voiceId        String
+  voice          ClonedVoice  @relation(fields: [voiceId], references: [id])
+  text           String
+  emotionTags    String?
+  audioUrl       String?
+  status         String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  paymentStatus  String       @default("UNPAID")  // UNPAID, PAID
+  adminNote      String?
+  createdAt      DateTime     @default(now())
+  approvedAt     DateTime?
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
