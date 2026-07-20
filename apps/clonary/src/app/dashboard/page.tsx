@@ -92,12 +92,13 @@ export default async function DashboardPage() {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Text</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Date</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Audio</th>
               </tr>
             </thead>
             <tbody>
               {user.generations.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                     No generations yet.{" "}
                     <Link href="/dashboard/generate" className="text-primary hover:underline">
                       Create one
@@ -116,6 +117,19 @@ export default async function DashboardPage() {
                     </td>
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                       {g.createdAt.toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      {g.audioUrl && g.status === "APPROVED" ? (
+                        <audio controls className="h-8 w-32">
+                          <source src={g.audioUrl} type="audio/mpeg" />
+                        </audio>
+                      ) : g.audioUrl ? (
+                        <audio controls className="h-8 w-32">
+                          <source src={g.audioUrl} type="audio/mpeg" />
+                        </audio>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </td>
                   </tr>
                 ))

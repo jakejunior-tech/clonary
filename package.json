@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "node scripts/install-native-deps.js",
     "dev": "npm run dev --workspace=apps/clonary & npm run dev --workspace=apps/admin",
     "dev:clonary": "npm run dev --workspace=apps/clonary",
     "dev:admin": "npm run dev --workspace=apps/admin",

@@ -63,20 +63,24 @@ export default function GenerateForm({ voices }: { voices: ClonedVoice[] }) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="emotion" className="text-sm font-medium">
-          Emotion Tag
-        </label>
-        <select
-          id="emotion"
-          name="emotion"
-          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-        >
+        <label className="text-sm font-medium">Emotion Tag</label>
+        <div className="flex flex-wrap gap-2">
           {emotions.map((e) => (
-            <option key={e.value} value={e.value}>
+            <label
+              key={e.value}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm cursor-pointer hover:bg-muted transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary"
+            >
+              <input
+                type="radio"
+                name="emotion"
+                value={e.value}
+                defaultChecked={e.value === ""}
+                className="accent-primary"
+              />
               {e.label}
-            </option>
+            </label>
           ))}
-        </select>
+        </div>
       </div>
 
       {state?.error && (

@@ -1,34 +1,34 @@
 "use client";
 
-import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { useState } from "react";
-
-async function cloneVoice(formData: FormData) {
-  "use server";
-
-  const session = await requireAuth();
-  const userId = session.sub as string;
-  const name = formData.get("name") as string;
-
-  if (!name) throw new Error("Voice name is required");
-
-  const voice = await prisma.clonedVoice.create({
-    data: {
-      userId,
-      name,
-      elevenlabsVoiceId: "pending",
-    },
-  });
-
-  revalidatePath("/dashboard");
-  redirect("/dashboard");
-}
+import { useState, useRef } from "react";
+import { cloneVoice } from "./actions";
 
 export default function CloneVoicePage() {
   const [name, setName] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      await cloneVoice(formData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cloning failed");
+      setPending(false);
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+  }
 
   return (
     <div className="max-w-lg space-y-6">
@@ -39,7 +39,7 @@ export default function CloneVoicePage() {
         </p>
       </div>
 
-      <form action={cloneVoice} className="space-y-4">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm font-medium">
             Voice Name
@@ -56,26 +56,45 @@ export default function CloneVoicePage() {
           />
         </div>
 
-        <div className="rounded-xl border-2 border-dashed border-border p-12 text-center">
-          <div className="text-4xl mb-3">🎤</div>
-          <p className="text-sm font-medium">Upload Audio Sample</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            MP3 or WAV, at least 30 seconds of clear speech
-          </p>
-          <button
-            type="button"
-            className="mt-4 text-sm text-primary font-medium hover:underline"
-            onClick={() => alert("Audio upload will be available when ElevenLabs is integrated")}
-          >
-            Browse Files
-          </button>
+        <div className="space-y-2">
+          <label htmlFor="audio" className="text-sm font-medium">
+            Audio Sample
+          </label>
+          <div className="rounded-xl border-2 border-dashed border-border p-6 text-center">
+            <div className="text-4xl mb-2">{file ? "✅" : "🎤"}</div>
+            <p className="text-sm font-medium">
+              {file ? file.name : "Upload Audio Sample"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              MP3 or WAV, at least 30 seconds of clear speech
+            </p>
+            <label className="mt-3 inline-block text-sm text-primary font-medium hover:underline cursor-pointer">
+              Browse Files
+              <input
+                id="audio"
+                name="audio"
+                type="file"
+                accept="audio/*"
+                required
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
+
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
-          className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:bg-primary-hover transition-colors"
+          disabled={pending}
+          className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
         >
-          Start Cloning
+          {pending ? "Cloning..." : "Start Cloning"}
         </button>
       </form>
     </div>
