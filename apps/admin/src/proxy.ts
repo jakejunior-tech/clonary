@@ -38,7 +38,7 @@ async function verifyToken(token: string): Promise<boolean> {
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   if (!protectedPaths.includes(path)) return NextResponse.next();
