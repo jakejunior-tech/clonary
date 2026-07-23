@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { login } from "@/lib/actions";
 
 export default function LoginPage() {
@@ -39,6 +40,14 @@ export default function LoginPage() {
             Sign in
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <Link
+            href="/forgot-password"
+            className="text-sm text-zinc-500 hover:text-zinc-700 underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createSession, clearSession } from "@/lib/auth";
-import { verifyPassword } from "@/lib/password";
+import { verifyPassword, hashPassword } from "@/lib/password";
 import { redirect } from "next/navigation";
 
 export async function approveGeneration(id: string) {
@@ -66,4 +66,42 @@ export async function login(formData: FormData) {
 export async function logout() {
   await clearSession();
   redirect("/login");
+}
+
+export async function resetAdmin(formData: FormData) {
+  const secret = formData.get("secret") as string;
+  const username = formData.get("username") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!secret || !username || !password || !confirmPassword) {
+    return { error: "All fields are required" };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match" };
+  }
+
+  if (password.length < 4) {
+    return { error: "Password must be at least 4 characters" };
+  }
+
+  if (secret !== process.env.ADMIN_RESET_SECRET) {
+    return { error: "Invalid security phrase" };
+  }
+
+  const passwordHash = hashPassword(password);
+
+  const admin = await prisma.admin.findFirst();
+  if (!admin) {
+    return { error: "No admin found" };
+  }
+
+  await prisma.admin.update({
+    where: { id: admin.id },
+    data: { username, passwordHash },
+  });
+
+  await createSession({ id: admin.id, username });
+  redirect("/");
 }
