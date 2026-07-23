@@ -69,39 +69,43 @@ export async function logout() {
 }
 
 export async function resetAdmin(formData: FormData) {
-  const secret = formData.get("secret") as string;
-  const username = formData.get("username") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
+  try {
+    const secret = formData.get("secret") as string;
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
 
-  if (!secret || !username || !password || !confirmPassword) {
-    return { error: "All fields are required" };
+    if (!secret || !username || !password || !confirmPassword) {
+      return { error: "All fields are required" };
+    }
+
+    if (password !== confirmPassword) {
+      return { error: "Passwords do not match" };
+    }
+
+    if (password.length < 4) {
+      return { error: "Password must be at least 4 characters" };
+    }
+
+    if (secret !== process.env.ADMIN_RESET_SECRET) {
+      return { error: "Invalid security phrase" };
+    }
+
+    const passwordHash = hashPassword(password);
+
+    const admin = await prisma.admin.findFirst();
+    if (!admin) {
+      return { error: "No admin found" };
+    }
+
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: { username, passwordHash },
+    });
+
+    await createSession({ id: admin.id, username });
+    return { success: true };
+  } catch {
+    return { error: "Something went wrong. Please try again." };
   }
-
-  if (password !== confirmPassword) {
-    return { error: "Passwords do not match" };
-  }
-
-  if (password.length < 4) {
-    return { error: "Password must be at least 4 characters" };
-  }
-
-  if (secret !== process.env.ADMIN_RESET_SECRET) {
-    return { error: "Invalid security phrase" };
-  }
-
-  const passwordHash = hashPassword(password);
-
-  const admin = await prisma.admin.findFirst();
-  if (!admin) {
-    return { error: "No admin found" };
-  }
-
-  await prisma.admin.update({
-    where: { id: admin.id },
-    data: { username, passwordHash },
-  });
-
-  await createSession({ id: admin.id, username });
-  return { success: true };
 }

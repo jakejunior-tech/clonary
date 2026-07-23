@@ -9,9 +9,13 @@ export default function ForgotPasswordPage() {
   const router = useRouter();
   const [state, action, pending] = useActionState(
     async (_: unknown, formData: FormData) => {
-      const result = await resetAdmin(formData);
-      if (result?.error) return { error: result.error };
-      if (result?.success) return { success: true };
+      try {
+        const result = await resetAdmin(formData);
+        if (result?.error) return { error: result.error };
+        if (result?.success) return { success: true };
+      } catch {
+        return { error: "Something went wrong. Please try again." };
+      }
       return null;
     },
     null as { error?: string; success?: boolean } | null,
