@@ -105,7 +105,8 @@ export async function resetAdmin(formData: FormData) {
 
     await createSession({ id: admin.id, username });
     return { success: true };
-  } catch {
-    return { error: "Something went wrong. Please try again." };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return { error: `Error: ${message}` };
   }
 }
