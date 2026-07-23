@@ -1,16 +1,8 @@
 {
   "builds": [
     {
-      "src": "apps/admin/package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "apps/clonary/package.json",
+      "src": "package.json",
       "use": "@vercel/next"
     }
-  ],
-  "routes": [
-    { "src": "^/admin(/.*)?$", "dest": "apps/admin" },
-    { "src": "^/(.*)$", "dest": "apps/clonary/$1" }
   ]
 }

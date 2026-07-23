@@ -23,7 +23,7 @@ export default function ForceResetPage() {
     }
 
     try {
-      const res = await fetch("/admin/api/force-reset", {
+      const res = await fetch("/api/force-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
