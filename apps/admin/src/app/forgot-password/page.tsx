@@ -1,17 +1,27 @@
 "use client";
 
+import { useEffect } from "react";
 import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 import { resetAdmin } from "@/lib/actions";
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [state, action, pending] = useActionState(
     async (_: unknown, formData: FormData) => {
       const result = await resetAdmin(formData);
-      if (result?.error) return result.error;
+      if (result?.error) return { error: result.error };
+      if (result?.success) return { success: true };
       return null;
     },
-    null as string | null,
+    null as { error?: string; success?: boolean } | null,
   );
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push("/admin");
+    }
+  }, [state, router]);
 
   return (
     <div className="w-full max-w-sm mx-auto">
@@ -68,8 +78,8 @@ export default function ForgotPasswordPage() {
               className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
             />
           </div>
-          {state && (
-            <p className="text-sm text-red-600">{state}</p>
+          {state?.error && (
+            <p className="text-sm text-red-600">{state.error}</p>
           )}
           <button
             type="submit"

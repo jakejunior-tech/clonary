@@ -103,5 +103,5 @@ export async function resetAdmin(formData: FormData) {
   });
 
   await createSession({ id: admin.id, username });
-  redirect("/");
+  return { success: true };
 }
