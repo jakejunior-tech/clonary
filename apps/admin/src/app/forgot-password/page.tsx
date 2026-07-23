@@ -13,8 +13,9 @@ export default function ForgotPasswordPage() {
         const result = await resetAdmin(formData);
         if (result?.error) return { error: result.error };
         if (result?.success) return { success: true };
-      } catch {
-        return { error: "Something went wrong. Please try again." };
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return { error: `Error: ${message}` };
       }
       return null;
     },
