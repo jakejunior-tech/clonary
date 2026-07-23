@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
 
   useEffect(() => {
     if (state?.success) {
-      router.push("/admin");
+      router.push("/admin/login?reset=true");
     }
   }, [state, router]);
 
